@@ -1,10 +1,14 @@
 package baesiru.siruchat.domain.chat.controller;
 
+import baesiru.siruchat.common.annotation.AuthenticatedUser;
+import baesiru.siruchat.common.resolver.AuthUser;
 import baesiru.siruchat.domain.chat.business.ChatBusiness;
 import baesiru.siruchat.domain.chat.controller.model.ChatMessageDto;
 import baesiru.siruchat.domain.chat.controller.model.request.ChatRoomCreateRequest;
 import baesiru.siruchat.domain.chat.controller.model.response.ChatMessageResponse;
 import baesiru.siruchat.domain.chat.controller.model.response.ChatRoomResponse;
+import baesiru.siruchat.domain.chat.repository.ChatMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -12,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 public class ChatController {
     @Autowired
@@ -20,6 +25,11 @@ public class ChatController {
     @MessageMapping("/chat/message")
     public void handleMessage(ChatMessageDto dto) {
         chatBusiness.handleIncomingMessage(dto);
+    }
+
+    @MessageMapping("/chat.send")
+    public void sendMessage(@AuthenticatedUser AuthUser user, ChatMessage message) {
+        log.info(">> Message from userId = {}", user.getUserId());
     }
 
     @PostMapping("/chat/rooms")

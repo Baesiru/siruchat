@@ -5,6 +5,8 @@ import baesiru.siruchat.common.errorcode.CommonErrorCode;
 import org.springframework.core.MethodParameter;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -23,11 +25,9 @@ public class AuthenticatedMessageUserResolver implements HandlerMethodArgumentRe
     @Override
     public Object resolveArgument(MethodParameter parameter, Message<?> message) throws Exception {
         boolean required = parameter.getParameterAnnotation(AuthenticatedUser.class).required();
-        RequestAttributes requestContext = Objects.requireNonNull(
-                RequestContextHolder.getRequestAttributes());
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-        Object userId = requestContext.getAttribute("userId",
-                RequestAttributes.SCOPE_REQUEST);
+        String userId = (String) accessor.getSessionAttributes().get("userId");
 
         if (userId == null && required) {
             throw new RuntimeException(CommonErrorCode.MISSING_REQUIRED_HEADER.getDescription());
