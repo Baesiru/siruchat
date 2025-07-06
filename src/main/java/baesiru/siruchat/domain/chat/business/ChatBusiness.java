@@ -1,10 +1,10 @@
 package baesiru.siruchat.domain.chat.business;
 
 import baesiru.siruchat.common.annotation.Business;
-import baesiru.siruchat.domain.chat.controller.ChatMessageDto;
-import baesiru.siruchat.domain.chat.controller.ChatMessageResponse;
-import baesiru.siruchat.domain.chat.controller.ChatRoomCreateRequest;
-import baesiru.siruchat.domain.chat.controller.ChatRoomResponse;
+import baesiru.siruchat.domain.chat.controller.model.ChatMessageDto;
+import baesiru.siruchat.domain.chat.controller.model.response.ChatMessageResponse;
+import baesiru.siruchat.domain.chat.controller.model.request.ChatRoomCreateRequest;
+import baesiru.siruchat.domain.chat.controller.model.response.ChatRoomResponse;
 import baesiru.siruchat.domain.chat.repository.ChatMessage;
 import baesiru.siruchat.domain.chat.repository.ChatRoom;
 import baesiru.siruchat.domain.chat.service.ChatService;
@@ -55,7 +55,6 @@ public class ChatBusiness {
     }
 
     public void handleIncomingMessage(ChatMessageDto dto) {
-        validateMessage(dto);
 
         String senderName = userService.getUserNameById(dto.getSenderId());
 
@@ -66,17 +65,6 @@ public class ChatBusiness {
         messagingTemplate.convertAndSend("/sub/chat/room/" + dto.getRoomId(), response);
     }
 
-    private void validateMessage(ChatMessageDto dto) {
-        if (dto.getContent() == null || dto.getContent().isBlank()) {
-            throw new IllegalArgumentException("메시지 내용이 비어 있습니다.");
-        }
-        if (dto.getSenderId() == null || dto.getRoomId() == null) {
-            throw new IllegalArgumentException("보낸 사람과 방 ID는 필수입니다.");
-        }
-        if (dto.getType() == null) {
-            throw new IllegalArgumentException("메시지 타입은 필수입니다.");
-        }
-    }
 
     private ChatRoomResponse toRoomResponse(ChatRoom room) {
         return new ChatRoomResponse(

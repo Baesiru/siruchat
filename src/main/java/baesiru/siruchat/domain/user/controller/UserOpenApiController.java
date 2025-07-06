@@ -9,13 +9,12 @@ import baesiru.siruchat.domain.user.controller.request.DuplicationUsernameReques
 import baesiru.siruchat.domain.user.controller.request.LoginRequest;
 import baesiru.siruchat.domain.user.controller.request.RegisterRequest;
 import baesiru.siruchat.domain.user.controller.response.MessageResponse;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/user")
-public class UserController {
+@RequestMapping("/open-api/user")
+public class UserOpenApiController {
     @Autowired
     private UserBusiness userBusiness;
 

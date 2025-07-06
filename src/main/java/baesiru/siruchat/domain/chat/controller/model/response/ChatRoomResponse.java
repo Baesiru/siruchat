@@ -1,4 +1,4 @@
-package baesiru.siruchat.domain.chat.controller;
+package baesiru.siruchat.domain.chat.controller.model.response;
 
 import baesiru.siruchat.domain.chat.repository.enums.ChatRoomType;
 import lombok.AllArgsConstructor;

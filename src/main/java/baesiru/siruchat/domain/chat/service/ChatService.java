@@ -1,7 +1,7 @@
 package baesiru.siruchat.domain.chat.service;
 
-import baesiru.siruchat.domain.chat.controller.ChatMessageDto;
-import baesiru.siruchat.domain.chat.controller.ChatRoomCreateRequest;
+import baesiru.siruchat.domain.chat.controller.model.ChatMessageDto;
+import baesiru.siruchat.domain.chat.controller.model.request.ChatRoomCreateRequest;
 import baesiru.siruchat.domain.chat.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
