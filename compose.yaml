@@ -10,6 +10,10 @@ services:
       - '3306:3306'
     networks:
       - ournet
+    volumes:
+      - type: volume
+        source: MYSQL_DATA
+        target: /var/lib/mysql
 
   redis:
     hostname: redis
@@ -21,6 +25,75 @@ services:
     networks:
       - ournet
 
+  mongo:
+    image: mongo
+    container_name: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    ports:
+      - 27017:27017
+    networks:
+      - ournet
+    volumes:
+      - type: volume
+        source: MONGO_DATA
+        target: /data/db
+      - type: volume
+        source: MONGO_CONFIG
+        target: /data/configdb
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=admin
+      - ME_CONFIG_MONGODB_SERVER=MONGO
+      - ME_CONFIG_MONGODB_PORT=27017
+    ports:
+      - 8081:8081
+    networks:
+      - ournet
+    depends_on:
+      - mongo
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq-stream
+    volumes:
+      - type: volume
+        source: RABBITMQ_ETC
+        target: /etc/rabbitmq/
+      - type: volume
+        source: RABBITMQ_DATA
+        target: /var/lib/rabbitmq
+      - type: volume
+        source: RABBITMQ_LOG
+        target: /var/log/rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_ERLANG_COOKIE: RabbitMQ-My-Cookies
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: rabbitpassword
+    networks:
+      - ournet
+
 networks:
   ournet:
     driver: bridge
+
+volumes:
+  MYSQL_DATA:
+    name: MYSQL_DATA
+  MONGO_DATA:
+    name: MONGO_DATA
+  MONGO_CONFIG:
+    name: MONGO_CONFIG
+  RABBITMQ_ETC:
+    name: RABBITMQ_ETC
+  RABBITMQ_DATA:
+    name: RABBITMQ_DATA
+  RABBITMQ_LOG:
+    name: RABBITMQ_LOG
