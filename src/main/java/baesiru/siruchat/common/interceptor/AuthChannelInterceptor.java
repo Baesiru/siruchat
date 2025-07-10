@@ -3,6 +3,7 @@ package baesiru.siruchat.common.interceptor;
 import baesiru.siruchat.common.errorcode.TokenErrorCode;
 import baesiru.siruchat.common.exception.token.TokenException;
 import baesiru.siruchat.domain.jwt.helper.TokenHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -11,6 +12,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class AuthChannelInterceptor implements ChannelInterceptor {
     @Autowired
@@ -28,6 +30,7 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
             String userId = tokenHelper.validationTokenWithThrow(token).get("userId").toString();
 
             accessor.getSessionAttributes().put("userId", userId);
+            log.info(userId + "is connected");
         }
         return message;
     }

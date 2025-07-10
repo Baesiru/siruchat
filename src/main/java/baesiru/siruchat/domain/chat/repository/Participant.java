@@ -1,7 +1,6 @@
 package baesiru.siruchat.domain.chat.repository;
 
-import baesiru.siruchat.domain.chat.repository.enums.MessageType;
-import jakarta.persistence.*;
+import jakarta.persistence.Id;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,16 +9,15 @@ import java.time.LocalDateTime;
 @Document
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatMessage {
+public class Participant {
     @Id
     private String id;
-    private Long senderId;
     private Long roomId;
-    private String content;
+    private Long userId;
+    private LocalDateTime joinedAt;
+    private boolean active;
 
-    @Enumerated(EnumType.STRING)
-    private MessageType type;
-    private LocalDateTime timestamp;
 }

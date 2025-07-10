@@ -1,19 +1,17 @@
 package baesiru.siruchat.domain.chat.controller.model.response;
 
 import baesiru.siruchat.domain.chat.repository.enums.MessageType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessageResponse {
-    private String senderName;
+    private Long senderId;
     private String content;
     private MessageType type;
     private LocalDateTime timestamp;

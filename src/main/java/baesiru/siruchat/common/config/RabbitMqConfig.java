@@ -24,10 +24,10 @@ public class RabbitMqConfig {
     private int port;
     @Value("${spring.rabbitmq.chat.exchange}")
     private String exchange;
-    @Value("${spring.rabbitmq.chat.send.queue}")
-    private String sendQueue;
-    @Value("${spring.rabbitmq.chat.send.routing-key}")
-    private String sendRoutingKey;
+    @Value("${spring.rabbitmq.chat.queue}")
+    private String roomQueue;
+    @Value("${spring.rabbitmq.chat.room.routing-key}")
+    private String roomRoutingKey;
 
 
     @Bean
@@ -46,20 +46,20 @@ public class RabbitMqConfig {
     }
 
     @Bean
-    public TopicExchange imageExchange() {
+    public TopicExchange roomExchange() {
         return new TopicExchange(exchange);
     }
 
     @Bean
-    public Queue sendQueue() {
-        return new Queue(sendQueue);
+    public Queue roomQueue() {
+        return new Queue(roomQueue);
     }
 
     @Bean
-    public Binding sendBinding() {
-        return BindingBuilder.bind(sendQueue())
-                .to(imageExchange())
-                .with(sendRoutingKey);
+    public Binding roomBinding() {
+        return BindingBuilder.bind(roomQueue())
+                .to(roomExchange())
+                .with(roomRoutingKey);
     }
 
 }

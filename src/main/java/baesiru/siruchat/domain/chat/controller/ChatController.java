@@ -1,19 +1,22 @@
 package baesiru.siruchat.domain.chat.controller;
 
 import baesiru.siruchat.common.annotation.AuthenticatedUser;
+import baesiru.siruchat.common.api.Api;
 import baesiru.siruchat.common.resolver.AuthUser;
 import baesiru.siruchat.domain.chat.business.ChatBusiness;
 import baesiru.siruchat.domain.chat.controller.model.ChatMessageDto;
 import baesiru.siruchat.domain.chat.controller.model.request.ChatRoomCreateRequest;
 import baesiru.siruchat.domain.chat.controller.model.response.ChatMessageResponse;
 import baesiru.siruchat.domain.chat.controller.model.response.ChatRoomResponse;
-import baesiru.siruchat.domain.chat.repository.ChatMessage;
+import baesiru.siruchat.domain.chat.controller.model.response.ChatRoomsResponse;
+import baesiru.siruchat.domain.user.controller.response.MessageResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -22,36 +25,40 @@ public class ChatController {
     @Autowired
     private ChatBusiness chatBusiness;
 
-    @MessageMapping("/chat/message")
-    public void handleMessage(ChatMessageDto dto) {
-        chatBusiness.handleIncomingMessage(dto);
+    @MessageMapping("chat.message.{roomId}")
+    public void sendMessage(@DestinationVariable Long roomId, ChatMessageDto dto) {
+        chatBusiness.sendMessage(roomId, dto);
     }
 
-    @MessageMapping("/chat.send")
-    public void sendMessage(@AuthenticatedUser AuthUser user, ChatMessage message) {
-        log.info(">> Message from userId = {}", user.getUserId());
+    @PostMapping("/api/chat/room")
+    public Api<ChatRoomResponse> createRoom(@AuthenticatedUser AuthUser authUser, @RequestBody ChatRoomCreateRequest request) {
+        return Api.OK(chatBusiness.createRoom(authUser, request));
     }
 
-    @PostMapping("/chat/rooms")
-    public ChatRoomResponse createRoom(@RequestBody ChatRoomCreateRequest request) {
-        return chatBusiness.createRoom(request);
+    @PostMapping("/api/chat/room/{roomId}/join")
+    public Api<MessageResponse> joinRoom(@AuthenticatedUser AuthUser authUser, @PathVariable Long roomId) {
+        chatBusiness.joinRoom(authUser, roomId);
+        MessageResponse messageResponse = new MessageResponse("참여가 완료되었습니다");
+        return Api.OK(messageResponse);
     }
 
-    @PostMapping("/chat/rooms/{roomId}/join")
-    public void joinRoom(@PathVariable Long roomId, @RequestParam Long userId) {
-        chatBusiness.joinRoom(roomId, userId);
-    }
-
-    @GetMapping("/chat/rooms/{roomId}/messages")
-    public Page<ChatMessageResponse> getMessages(
+    @GetMapping("/api/chat/room/{roomId}/messages")
+    public Api<List<ChatMessageResponse>> getMessages(
+            @AuthenticatedUser AuthUser authUser,
             @PathVariable Long roomId,
-            @RequestParam int page,
-            @RequestParam int size) {
-        return chatBusiness.getMessages(roomId, page, size);
+            @RequestParam(required = false) LocalDateTime cursorTime) {
+        return Api.OK(chatBusiness.getMessages(authUser, roomId, cursorTime));
     }
 
-    @GetMapping("/chat/rooms")
-    public List<ChatRoomResponse> getRooms(@RequestParam Long userId) {
-        return chatBusiness.getRoomsByUser(userId);
+    @GetMapping("/api/chat/rooms")
+    public Api<List<ChatRoomsResponse>> getRooms(@AuthenticatedUser AuthUser authUser) {
+        return Api.OK(chatBusiness.getRoomsByUser(authUser));
+    }
+
+    @PostMapping("/api/chat/room/{roomId}/detach")
+    public Api<MessageResponse> detachRoom(@AuthenticatedUser AuthUser authUser, @PathVariable Long roomId) {
+        chatBusiness.detachRoom(authUser, roomId);
+        MessageResponse messageResponse = new MessageResponse("성공적으로 방을 나갔습니다.");
+        return Api.OK(messageResponse);
     }
 }

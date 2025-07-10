@@ -1,20 +1,18 @@
 package baesiru.siruchat.domain.chat.controller.model.response;
 
 import baesiru.siruchat.domain.chat.repository.enums.ChatRoomType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatRoomResponse {
-    private Long id;
     private String name;
+    private Long roomId;
     private ChatRoomType type;
     private LocalDateTime createdAt;
 

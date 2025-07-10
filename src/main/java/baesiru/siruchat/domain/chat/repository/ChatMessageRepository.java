@@ -1,11 +1,15 @@
 package baesiru.siruchat.domain.chat.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
-    Page<ChatMessage> findByChatRoomId(Long roomId, Pageable pageable);
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
-    Page<ChatMessage> findByChatRoomIdOrderByTimestampDesc(Long roomId, Pageable pageable);
+public interface ChatMessageRepository extends MongoRepository<ChatMessage, String> {
+    List<ChatMessage> findTop100ByRoomIdOrderByTimestampDesc(Long roomId);
+
+    List<ChatMessage> findTop100ByRoomIdAndTimestampBeforeOrderByTimestampDesc(Long roomId, LocalDateTime cursorTime);
+
+    Optional<ChatMessage> findFirstByRoomIdOrderByTimestampDesc(Long roomId);
 }
