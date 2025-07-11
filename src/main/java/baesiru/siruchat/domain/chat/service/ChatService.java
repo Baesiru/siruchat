@@ -23,10 +23,10 @@ public class ChatService {
 
 
     @Transactional
-    public ChatMessage saveMessage(ChatMessageDto dto, Long roomId) {
+    public ChatMessage saveMessage(Long userId, ChatMessageDto dto, Long roomId) {
         ChatMessage msg = new ChatMessage();
         msg.setRoomId(roomId);
-        msg.setSenderId(dto.getSenderId());
+        msg.setSenderId(userId);
         msg.setContent(dto.getContent());
         msg.setType(dto.getType());
         msg.setTimestamp(LocalDateTime.now());

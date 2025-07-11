@@ -27,8 +27,8 @@ public class ChatController {
     private ChatBusiness chatBusiness;
 
     @MessageMapping("chat.message.{roomId}")
-    public void sendMessage(@DestinationVariable Long roomId, ChatMessageDto dto) {
-        chatBusiness.sendMessage(roomId, dto);
+    public void sendMessage(@AuthenticatedUser AuthUser authUser, @DestinationVariable Long roomId, ChatMessageDto dto) {
+        chatBusiness.sendMessage(authUser, roomId, dto);
     }
 
     @PostMapping("/api/chat/room")

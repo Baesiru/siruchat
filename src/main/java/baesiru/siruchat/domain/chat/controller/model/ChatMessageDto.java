@@ -13,7 +13,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessageDto {
-    @NotBlank(message = "전송자 ID는 필수 입력 사항입니다.")
     private Long senderId;
     @NotBlank(message = "내용은 필수 입력 사항입니다.")
     private String content;

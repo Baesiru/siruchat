@@ -46,12 +46,13 @@ public class ChatBusiness {
 
 
     @Transactional
-    public void sendMessage(Long roomId, ChatMessageDto dto) {
-        ChatMessage savedMessage = chatService.saveMessage(dto, roomId);
+    public void sendMessage(AuthUser authUser, Long roomId, ChatMessageDto dto) {
+        Long userId = Long.parseLong(authUser.getUserId());
+        ChatMessage savedMessage = chatService.saveMessage(userId, dto, roomId);
         ChatMessageResponse chatMessageResponse = ChatMessageResponse.builder()
                 .content(savedMessage.getContent())
                 .timestamp(savedMessage.getTimestamp())
-                .senderId(savedMessage.getSenderId())
+                .senderId(userId)
                 .type(MessageType.TALK)
                 .build();
         rabbitTemplate.convertAndSend(CHAT_EXCHANGE, "chat.room."+roomId, Api.OK(chatMessageResponse));
