@@ -13,6 +13,7 @@ import baesiru.siruchat.domain.chat.repository.*;
 import baesiru.siruchat.domain.chat.repository.enums.ChatRoomType;
 import baesiru.siruchat.domain.chat.repository.enums.MessageType;
 import baesiru.siruchat.domain.chat.service.ChatService;
+import baesiru.siruchat.domain.sse.service.SseService;
 import baesiru.siruchat.domain.user.repository.User;
 import baesiru.siruchat.domain.user.service.UserService;
 import jakarta.transaction.Transactional;
@@ -32,6 +33,8 @@ public class ChatBusiness {
     private ChatService chatService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private SseService sseService;
     @Autowired
     private RabbitTemplate rabbitTemplate;
     @Autowired
@@ -67,6 +70,7 @@ public class ChatBusiness {
                 .type(MessageType.TALK)
                 .build();
         rabbitTemplate.convertAndSend(CHAT_EXCHANGE, "chat.room."+roomId, Api.OK(chatMessageResponse));
+        sseService.sendMessage(roomId, chatMessageResponse);
     }
 
     private Long generateRoomId() {
@@ -81,14 +85,17 @@ public class ChatBusiness {
     @Transactional
     public ChatRoomResponse createRoom(AuthUser authUser, ChatRoomCreateRequest request) {
         Long roomId = generateRoomId();
+        Long userId = Long.parseLong(authUser.getUserId());
         ChatRoom room = chatService.createRoom(request, roomId);
         Participant participant = Participant.builder()
                 .roomId(roomId)
-                .userId(Long.parseLong(authUser.getUserId()))
+                .userId(userId)
                 .joinedAt(LocalDateTime.now())
                 .active(true)
                 .build();
         chatService.saveParticipant(participant);
+
+        sseService.addSSeRoom(roomId, userId);
 
         if (request.getType() == ChatRoomType.ONE_TO_ONE) {
             createOneToOneRoom(roomId, request.getPartnerId());
@@ -110,6 +117,9 @@ public class ChatBusiness {
                 .active(true)
                 .build();
         chatService.saveParticipant(partner);
+        if (sseService.isOnline(partner.getUserId())) {
+            sseService.addSSeRoom(roomId, partner.getUserId());
+        }
     }
 
     @Transactional
