@@ -170,7 +170,7 @@ public class ChatBusiness {
     public void detachRoom(AuthUser authUser, Long roomId) {
         Long userId = Long.parseLong(authUser.getUserId());
         ChatRoom chatRoom = chatService.findRoomByRoomId(roomId);
-        Participant participant = chatService.findParticipantByUserId(userId);
+        Participant participant = chatService.findParticipantByUserIdAndRoomId(userId, roomId);
         if (chatRoom.getType() == ChatRoomType.ONE_TO_ONE) {
             participant.setActive(false);
             chatService.saveParticipant(participant);
