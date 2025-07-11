@@ -117,4 +117,12 @@ public class ChatService {
         List<ChatRoom> chatRooms = chatRoomRepository.findByType(ChatRoomType.GROUP);
         return chatRooms;
     }
+
+    public Participant findParticipantByRoomIdAndUserIdNot(Long roomId, Long userId) {
+        Optional<Participant> participant = participantRepository.findByRoomIdAndUserIdNot(roomId, userId);
+        if (participant.isEmpty()) {
+            throw new IllegalArgumentException("유저가 존재하지 않습니다.");
+        }
+        return participant.get();
+    }
 }

@@ -53,4 +53,12 @@ public class UserService {
     public List<User> findAll() {
         return userRepository.findAll();
     }
+
+    public User findById(Long partnerId) {
+        Optional<User> user = userRepository.findById(partnerId);
+        if (user.isEmpty()) {
+            throw new UserNotFoundException(UserErrorCode.USER_NOT_FOUND);
+        }
+        return user.get();
+    }
 }

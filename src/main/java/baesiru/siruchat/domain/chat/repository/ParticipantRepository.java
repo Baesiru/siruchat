@@ -15,4 +15,6 @@ public interface ParticipantRepository extends MongoRepository<Participant, Stri
     List<Participant> findByUserIdAndActiveTrue(Long userId);
 
     List<Participant> findByRoomId(Long roomId);
+
+    Optional<Participant> findByRoomIdAndUserIdNot(Long roomId, Long userId);
 }

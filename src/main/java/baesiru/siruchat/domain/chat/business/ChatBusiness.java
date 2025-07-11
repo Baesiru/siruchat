@@ -137,32 +137,30 @@ public class ChatBusiness {
     public List<ChatRoomsResponse> getRoomsByUser(AuthUser authUser) {
         Long userId = Long.parseLong(authUser.getUserId());
         List<Participant> participants = chatService.findParticipantsByUserIdAndActiveTrue(userId);
-        List<Long> roomIds = participants.stream().map(Participant::getRoomId).toList();
+        List<Long> roomIds = participants.stream()
+                .map(Participant::getRoomId)
+                .toList();
         List<ChatRoom> rooms = chatService.findRoomNamesByRoomIds(roomIds);
-        List<ChatRoomsResponse> responseList = new ArrayList<>();
-        for (ChatRoom chatRoom : rooms) {
-            Long roomId = chatRoom.getRoomId();
-            String name = chatRoom.getName();
-            ChatMessage latestMessage = chatService.findFirstByRoomIdOrderByCreatedAtDesc(roomId);
+        List<ChatRoomsResponse> responseList = rooms.stream()
+                .map(chatRoom -> {
+                    Long roomId = chatRoom.getRoomId();
+                    String name = chatRoom.getName();
+                    if (name == null) {
+                        Long partnerId = chatService.findParticipantByRoomIdAndUserIdNot(roomId, userId).getUserId();
+                        name = userService.findById(partnerId).getNickname() + "님과의 채팅방";
+                    }
+                    ChatMessage latestMessage = chatService.findFirstByRoomIdOrderByCreatedAtDesc(roomId);
+                    ChatMessageResponse messageResponse = (latestMessage != null)
+                            ? new ChatMessageResponse(
+                            latestMessage.getSenderId(),
+                            latestMessage.getContent(),
+                            latestMessage.getType(),
+                            latestMessage.getTimestamp())
+                            : null;
+                    return new ChatRoomsResponse(roomId, name, messageResponse);
+                })
+                .toList();
 
-            ChatMessageResponse messageResponse = null;
-            if (latestMessage != null) {
-                messageResponse = new ChatMessageResponse(
-                        latestMessage.getSenderId(),
-                        latestMessage.getContent(),
-                        latestMessage.getType(),
-                        latestMessage.getTimestamp()
-                );
-            }
-
-            ChatRoomsResponse roomResponse = new ChatRoomsResponse(
-                    roomId,
-                    chatRoom.getName(),
-                    messageResponse
-            );
-
-            responseList.add(roomResponse);
-        }
         return responseList;
     }
 
