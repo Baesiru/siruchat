@@ -145,7 +145,7 @@ public class ChatBusiness {
                 .map(chatRoom -> {
                     Long roomId = chatRoom.getRoomId();
                     String name = chatRoom.getName();
-                    if (name == null) {
+                    if (chatRoom.getType() == ChatRoomType.ONE_TO_ONE) {
                         Long partnerId = chatService.findParticipantByRoomIdAndUserIdNot(roomId, userId).getUserId();
                         name = userService.findById(partnerId).getNickname() + "님과의 채팅방";
                     }
