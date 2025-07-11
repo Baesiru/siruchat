@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ChatMessageRepository extends MongoRepository<ChatMessage, String> {
-    List<ChatMessage> findTop100ByRoomIdOrderByTimestampDesc(Long roomId);
+    List<ChatMessage> findTop100ByRoomIdAndTimestampAfterOrderByTimestampDesc(Long roomId, LocalDateTime maxTime);
 
-    List<ChatMessage> findTop100ByRoomIdAndTimestampBeforeOrderByTimestampDesc(Long roomId, LocalDateTime cursorTime);
-
+    List<ChatMessage> findTop100ByRoomIdAndTimestampBeforeAndTimestampAfterOrderByTimestampDesc(Long roomId, LocalDateTime cursorTime, LocalDateTime maxTime);
     Optional<ChatMessage> findFirstByRoomIdOrderByTimestampDesc(Long roomId);
+    Optional<ChatMessage> findFirstByRoomIdAndTimestampAfterOrderByTimestampDesc(Long roomId, LocalDateTime timestamp);
 }

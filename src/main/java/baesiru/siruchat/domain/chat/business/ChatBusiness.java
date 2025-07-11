@@ -23,8 +23,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Business
 public class ChatBusiness {
@@ -48,6 +48,17 @@ public class ChatBusiness {
     @Transactional
     public void sendMessage(AuthUser authUser, Long roomId, ChatMessageDto dto) {
         Long userId = Long.parseLong(authUser.getUserId());
+        ChatRoom chatRoom = chatService.findRoomByRoomId(roomId);
+        if (chatRoom.getType() == ChatRoomType.ONE_TO_ONE) {
+            Participant partner = chatService.findParticipantByRoomIdAndUserIdNot(roomId, userId);
+            if (!partner.isActive()) {
+                partner.setActive(true);
+                partner.setJoinedAt(LocalDateTime.now());
+                partner.setDeactivatedAt(null);
+                chatService.saveParticipant(partner);
+            }
+        }
+
         ChatMessage savedMessage = chatService.saveMessage(userId, dto, roomId);
         ChatMessageResponse chatMessageResponse = ChatMessageResponse.builder()
                 .content(savedMessage.getContent())
@@ -112,19 +123,24 @@ public class ChatBusiness {
             participant.setJoinedAt(LocalDateTime.now());
             chatService.saveParticipant(participant);
         }
-        Participant participant = Participant.builder()
-                .roomId(roomId)
-                .userId(Long.parseLong(authUser.getUserId()))
-                .joinedAt(LocalDateTime.now())
-                .active(true)
-                .build();
-        chatService.saveParticipant(participant);
+        else {
+            Participant participant = Participant.builder()
+                    .roomId(roomId)
+                    .userId(Long.parseLong(authUser.getUserId()))
+                    .joinedAt(LocalDateTime.now())
+                    .active(true)
+                    .build();
+            chatService.saveParticipant(participant);
+        }
     }
 
     public List<ChatMessageResponse> getMessages(AuthUser authUser, Long roomId, LocalDateTime cursorTime) {
         Long userId = Long.parseLong(authUser.getUserId());
-        chatService.findParticipantByUserIdAndRoomId(userId, roomId);
-        List<ChatMessage> messages = chatService.findMessagesByRoom(roomId, cursorTime);
+        Participant participant = chatService.findParticipantByUserIdAndRoomId(userId, roomId);
+
+        LocalDateTime maxTime = getMaxTime(participant.getJoinedAt(), participant.getDeactivatedAt());
+
+        List<ChatMessage> messages = chatService.findMessagesByRoom(roomId, cursorTime, maxTime);
         return messages.stream().map(message -> ChatMessageResponse.builder()
                 .content(message.getContent())
                 .timestamp(message.getTimestamp())
@@ -134,9 +150,20 @@ public class ChatBusiness {
                 toList();
     }
 
+    private LocalDateTime getMaxTime(LocalDateTime... times) {
+        return Arrays.stream(times)
+                .filter(Objects::nonNull)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
+    }
+
     public List<ChatRoomsResponse> getRoomsByUser(AuthUser authUser) {
         Long userId = Long.parseLong(authUser.getUserId());
         List<Participant> participants = chatService.findParticipantsByUserIdAndActiveTrue(userId);
+
+        Map<Long, Participant> participantMap = participants.stream()
+                .collect(Collectors.toMap(Participant::getRoomId, p -> p));
+
         List<Long> roomIds = participants.stream()
                 .map(Participant::getRoomId)
                 .toList();
@@ -149,7 +176,12 @@ public class ChatBusiness {
                         Long partnerId = chatService.findParticipantByRoomIdAndUserIdNot(roomId, userId).getUserId();
                         name = userService.findById(partnerId).getNickname() + "님과의 채팅방";
                     }
-                    ChatMessage latestMessage = chatService.findFirstByRoomIdOrderByCreatedAtDesc(roomId);
+
+                    Participant participant = participantMap.get(roomId);
+                    LocalDateTime maxTime = getMaxTime(participant.getJoinedAt(), participant.getDeactivatedAt());
+
+
+                    ChatMessage latestMessage = chatService.findFirstByRoomIdAndTimestampAfterOrderByTimestampDesc(roomId, maxTime);
                     ChatMessageResponse messageResponse = (latestMessage != null)
                             ? new ChatMessageResponse(
                             latestMessage.getSenderId(),
@@ -171,6 +203,7 @@ public class ChatBusiness {
         Participant participant = chatService.findParticipantByUserIdAndRoomId(userId, roomId);
         if (chatRoom.getType() == ChatRoomType.ONE_TO_ONE) {
             participant.setActive(false);
+            participant.setDeactivatedAt(LocalDateTime.now());
             chatService.saveParticipant(participant);
         }
         else {

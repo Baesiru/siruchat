@@ -72,12 +72,12 @@ public class ChatService {
         return chatRoomRepository.save(chatRoom);
     }
 
-    public List<ChatMessage> findMessagesByRoom(Long roomId, LocalDateTime cursorTime) {
+    public List<ChatMessage> findMessagesByRoom(Long roomId, LocalDateTime cursorTime, LocalDateTime maxTime) {
         if (cursorTime == null) {
-            return chatMessageRepository.findTop100ByRoomIdOrderByTimestampDesc(roomId);
+            return chatMessageRepository.findTop100ByRoomIdAndTimestampAfterOrderByTimestampDesc(roomId, maxTime);
         }
         else {
-            return chatMessageRepository.findTop100ByRoomIdAndTimestampBeforeOrderByTimestampDesc(roomId, cursorTime);
+            return chatMessageRepository.findTop100ByRoomIdAndTimestampBeforeAndTimestampAfterOrderByTimestampDesc(roomId, cursorTime, maxTime);
         }
     }
 
@@ -93,6 +93,11 @@ public class ChatService {
 
     public ChatMessage findFirstByRoomIdOrderByCreatedAtDesc(Long roomId) {
         Optional<ChatMessage> chatMessage = chatMessageRepository.findFirstByRoomIdOrderByTimestampDesc(roomId);
+        return chatMessage.orElse(null);
+    }
+
+    public ChatMessage findFirstByRoomIdAndTimestampAfterOrderByTimestampDesc(Long roomId, LocalDateTime maxTime) {
+        Optional<ChatMessage> chatMessage = chatMessageRepository.findFirstByRoomIdAndTimestampAfterOrderByTimestampDesc(roomId, maxTime);
         return chatMessage.orElse(null);
     }
 

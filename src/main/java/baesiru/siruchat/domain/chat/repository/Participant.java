@@ -19,5 +19,5 @@ public class Participant {
     private Long userId;
     private LocalDateTime joinedAt;
     private boolean active;
-
+    private LocalDateTime deactivatedAt;
 }
