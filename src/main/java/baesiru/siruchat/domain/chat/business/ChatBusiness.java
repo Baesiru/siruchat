@@ -6,12 +6,15 @@ import baesiru.siruchat.common.resolver.AuthUser;
 import baesiru.siruchat.domain.chat.controller.model.ChatMessageDto;
 import baesiru.siruchat.domain.chat.controller.model.response.ChatMessageResponse;
 import baesiru.siruchat.domain.chat.controller.model.request.ChatRoomCreateRequest;
+import baesiru.siruchat.domain.chat.controller.model.response.ChatParticipantsResponse;
 import baesiru.siruchat.domain.chat.controller.model.response.ChatRoomResponse;
 import baesiru.siruchat.domain.chat.controller.model.response.ChatRoomsResponse;
 import baesiru.siruchat.domain.chat.repository.*;
 import baesiru.siruchat.domain.chat.repository.enums.ChatRoomType;
 import baesiru.siruchat.domain.chat.repository.enums.MessageType;
 import baesiru.siruchat.domain.chat.service.ChatService;
+import baesiru.siruchat.domain.user.repository.User;
+import baesiru.siruchat.domain.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,8 @@ import java.util.stream.Collectors;
 public class ChatBusiness {
     @Autowired
     private ChatService chatService;
+    @Autowired
+    private UserService userService;
     @Autowired
     private RabbitTemplate rabbitTemplate;
     @Autowired
@@ -174,5 +179,27 @@ public class ChatBusiness {
         else {
             chatService.delete(participant);
         }
+    }
+
+    public List<ChatParticipantsResponse> getParticipants(Long roomId) {
+        List<Participant> participants = chatService.findParticipantsByRoomId(roomId);
+        List<Long> userIds = participants.stream().map(participant -> participant.getUserId()).toList();
+        List<User> users = userService.findNicknamesByUserId(userIds);
+        List<ChatParticipantsResponse> responseList = users.stream().map(user -> new ChatParticipantsResponse(user.getId(), user.getNickname())).toList();
+        return responseList;
+    }
+
+    public List<ChatParticipantsResponse> getUsers() {
+        List<User> users = userService.findAll();
+        List<ChatParticipantsResponse> responseList = users.stream().map(user -> new ChatParticipantsResponse(user.getId(), user.getNickname())).toList();
+        return responseList;
+    }
+
+    public List<ChatRoomResponse> getRooms() {
+        List<ChatRoom> chatRooms = chatService.findGroupRooms();
+        List<ChatRoomResponse> responseList = chatRooms.stream()
+                .map(chatRoom -> new ChatRoomResponse(chatRoom.getName(), chatRoom.getRoomId(), chatRoom.getType(), chatRoom.getCreatedAt()))
+                .toList();
+        return responseList;
     }
 }

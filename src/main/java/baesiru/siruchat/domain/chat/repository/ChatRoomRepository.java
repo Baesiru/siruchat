@@ -1,5 +1,6 @@
 package baesiru.siruchat.domain.chat.repository;
 
+import baesiru.siruchat.domain.chat.repository.enums.ChatRoomType;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
@@ -11,4 +12,6 @@ public interface ChatRoomRepository extends MongoRepository<ChatRoom, String> {
     Optional<ChatRoom> findByRoomId(Long roomId);
 
     List<ChatRoom> findByRoomIdIn(List<Long> roomIds);
+
+    List<ChatRoom> findByType(ChatRoomType chatRoomType);
 }

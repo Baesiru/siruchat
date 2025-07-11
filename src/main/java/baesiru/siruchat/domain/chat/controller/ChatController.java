@@ -7,6 +7,7 @@ import baesiru.siruchat.domain.chat.business.ChatBusiness;
 import baesiru.siruchat.domain.chat.controller.model.ChatMessageDto;
 import baesiru.siruchat.domain.chat.controller.model.request.ChatRoomCreateRequest;
 import baesiru.siruchat.domain.chat.controller.model.response.ChatMessageResponse;
+import baesiru.siruchat.domain.chat.controller.model.response.ChatParticipantsResponse;
 import baesiru.siruchat.domain.chat.controller.model.response.ChatRoomResponse;
 import baesiru.siruchat.domain.chat.controller.model.response.ChatRoomsResponse;
 import baesiru.siruchat.domain.user.controller.response.MessageResponse;
@@ -60,5 +61,23 @@ public class ChatController {
         chatBusiness.detachRoom(authUser, roomId);
         MessageResponse messageResponse = new MessageResponse("성공적으로 방을 나갔습니다.");
         return Api.OK(messageResponse);
+    }
+
+    @GetMapping("/api/chat/room/{roomId}")
+    public Api<Object> getParticipants(@PathVariable Long roomId) {
+        List<ChatParticipantsResponse> participantsResponses = chatBusiness.getParticipants(roomId);
+        return Api.OK(participantsResponses);
+    }
+
+    @GetMapping("/api/chat/room/group")
+    public Api<Object> getGroupRooms() {
+        List<ChatRoomResponse> chatRoomResponses = chatBusiness.getRooms();
+        return Api.OK(chatRoomResponses);
+    }
+
+    @GetMapping("/api/chat/user")
+    public Api<Object> getUsers() {
+        List<ChatParticipantsResponse> participantsResponses = chatBusiness.getUsers();
+        return Api.OK(participantsResponses);
     }
 }

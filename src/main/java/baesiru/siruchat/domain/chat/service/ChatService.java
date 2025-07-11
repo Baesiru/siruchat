@@ -3,6 +3,7 @@ package baesiru.siruchat.domain.chat.service;
 import baesiru.siruchat.domain.chat.controller.model.ChatMessageDto;
 import baesiru.siruchat.domain.chat.controller.model.request.ChatRoomCreateRequest;
 import baesiru.siruchat.domain.chat.repository.*;
+import baesiru.siruchat.domain.chat.repository.enums.ChatRoomType;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -105,5 +106,15 @@ public class ChatService {
 
     public void delete(Participant participant) {
         participantRepository.delete(participant);
+    }
+
+    public List<Participant> findParticipantsByRoomId(Long roomId) {
+        List<Participant> participants = participantRepository.findByRoomId(roomId);
+        return participants;
+    }
+
+    public List<ChatRoom> findGroupRooms() {
+        List<ChatRoom> chatRooms = chatRoomRepository.findByType(ChatRoomType.GROUP);
+        return chatRooms;
     }
 }

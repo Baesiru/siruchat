@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -45,9 +46,11 @@ public class UserService {
         return user.get();
     }
 
-    public String getUserNameById(Long senderId) {
-        return userRepository.findById(senderId)
-                .map(User::getNickname)
-                .orElse("알 수 없음");
+    public List<User> findNicknamesByUserId(List<Long> users) {
+        return userRepository.findAllById(users);
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 }
