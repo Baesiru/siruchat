@@ -8,10 +8,6 @@ import org.springframework.messaging.handler.invocation.HandlerMethodArgumentRes
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-
-import java.util.Objects;
 
 @Component
 public class AuthenticatedMessageUserResolver implements HandlerMethodArgumentResolver {

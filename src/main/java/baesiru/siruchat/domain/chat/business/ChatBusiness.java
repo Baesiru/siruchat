@@ -25,8 +25,6 @@ import org.springframework.data.redis.core.ValueOperations;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Business
 public class ChatBusiness {
@@ -140,10 +138,10 @@ public class ChatBusiness {
         List<Participant> participants = chatService.findParticipantsByUserIdAndActiveTrue(userId);
         List<Long> roomIds = participants.stream().map(Participant::getRoomId).toList();
         List<ChatRoom> rooms = chatService.findRoomNamesByRoomIds(roomIds);
-        Map<Long, String> roomNameMap = rooms.stream()
-                .collect(Collectors.toMap(ChatRoom::getRoomId, ChatRoom::getName));
         List<ChatRoomsResponse> responseList = new ArrayList<>();
-        for (Long roomId : roomIds) {
+        for (ChatRoom chatRoom : rooms) {
+            Long roomId = chatRoom.getRoomId();
+            String name = chatRoom.getName();
             ChatMessage latestMessage = chatService.findFirstByRoomIdOrderByCreatedAtDesc(roomId);
 
             ChatMessageResponse messageResponse = null;
@@ -158,7 +156,7 @@ public class ChatBusiness {
 
             ChatRoomsResponse roomResponse = new ChatRoomsResponse(
                     roomId,
-                    roomNameMap.getOrDefault(roomId, "이름없음"),
+                    chatRoom.getName(),
                     messageResponse
             );
 
