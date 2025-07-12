@@ -82,5 +82,11 @@ jobs:
             MONGO_USERNAME=${{ secrets.MONGO_USERNAME }} \
             MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }} \
             MONGO_DB=${{ secrets.MONGO_DB }} \
+            REDIS_HOST=${{ secrets.REDIS_HOST }} \
+            MYSQL_HOST=${{ secrets.MYSQL_HOST }} \
+            RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }} \
+            RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }} \
+            MONGO_HOST=${{ secrets.MONGO_HOST }} \
+            GITHUB_SHA=latest \
             JWT_SECRET=${{ secrets.JWT_SECRET }} \
             docker-compose -f compose.yaml up -d --build siruchat
