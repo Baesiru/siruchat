@@ -38,7 +38,39 @@
 
 ---
 
-<img width="1563" height="734" alt="image" src="https://github.com/user-attachments/assets/1378e58d-4617-4b0e-af38-7a9c6e247b96" />
-<img width="1602" height="766" alt="image" src="https://github.com/user-attachments/assets/19b15571-75f1-46c6-8b37-4942af544051" />
-<img width="1577" height="738" alt="image" src="https://github.com/user-attachments/assets/6185d09c-f881-4cb4-b96d-fb67910a23fd" />
+## 🖼️ 구현 사항(스크린샷)
+### 메인화면
 
+<img width="1306" height="950" alt="image" src="https://github.com/user-attachments/assets/c7a81bcb-28e1-45df-9ba7-1880e1b359d6" />
+
+### 그룹채팅 및 사용자 찾기
+
+<img width="1141" height="586" alt="image" src="https://github.com/user-attachments/assets/8dea154d-1ae9-4f03-a673-5fdd46ab3212" />
+
+<img width="1141" height="567" alt="image" src="https://github.com/user-attachments/assets/a6e9b5d8-97eb-437b-ab18-bf317bcbe9a2" />
+
+### 그룹 채팅방 만들기
+
+<img width="1262" height="886" alt="image" src="https://github.com/user-attachments/assets/1f85b4f5-a453-41f2-8809-33c74b232b23" />
+
+### 그룹 채팅방
+
+<img width="1560" height="1242" alt="image" src="https://github.com/user-attachments/assets/47dbbd67-a623-49dd-819a-8ebc02f6a62b" />
+
+### 추가된 그룹 채팅방과 참여자 리스트
+
+<img width="1178" height="752" alt="image" src="https://github.com/user-attachments/assets/bb077a28-e4d2-4fbc-ae4f-45fedc49f755" />
+
+<img width="1932" height="1031" alt="image" src="https://github.com/user-attachments/assets/39ff6015-11d0-4c27-adc5-5edec009f7d7" />
+
+### 입장 이후 메시지만 로딩
+
+<img width="1624" height="1309" alt="image" src="https://github.com/user-attachments/assets/a3dd3226-12e6-4d98-8c37-003726ab5f8a" />
+
+### 1:1 채팅방
+
+<img width="1647" height="1328" alt="image" src="https://github.com/user-attachments/assets/b87fdc05-c3b5-4356-82ae-009656b2c772" />
+
+### SSE를 이용한 알림 및 채팅방 내역의 최근 메시지 업데이트
+
+<img width="2149" height="1287" alt="image" src="https://github.com/user-attachments/assets/d06bfb70-04c6-4a75-acd8-8bc90bddf98a" />
