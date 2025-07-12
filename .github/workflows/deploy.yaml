@@ -12,13 +12,14 @@ env:
 
   # EC2 접속 정보 (GitHub Secrets에서 가져옴)
   EC2_HOST: ${{ secrets.EC2_HOST }} # EC2 퍼블릭 DNS 또는 IP
-  EC2_USER: ec2-user # AWS Linux/UNIX 기본 사용자 (실제 EC2 사용자명으로 변경)
+  EC2_USER: ec2-user # AWS Linux/UNIX 기본 사용자 (실제 EC2 사용자명으로 변경: 예: 'ubuntu' 또는 'admin')
   EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }} # EC2 개인 키 내용
 
   # EC2에서 docker-compose.yaml과 프로젝트 파일들이 위치할 최종 디렉토리
   # 이 디렉토리는 EC2 사용자 홈 디렉토리 내에 존재해야 하며,
   # docker-compose.yaml 파일이 이미 여기에 있다고 가정합니다.
-  PROJECT_DIR_ON_EC2: /home/${{ env.EC2_USER }}/siruchat-project
+  # 여기서는 EC2_USER 값을 직접 사용합니다 (예: ec2-user)
+  PROJECT_DIR_ON_EC2: /home/ec2-user/siruchat-project # <-- 이 부분을 이렇게 변경
 
 jobs:
   # 1. Spring Boot 애플리케이션 빌드 및 Docker Hub에 이미지 푸시
