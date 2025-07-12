@@ -52,11 +52,12 @@ public class ChatBusiness {
     public void sendMessage(AuthUser authUser, Long roomId, ChatMessageDto dto) {
         Long userId = Long.parseLong(authUser.getUserId());
         ChatRoom chatRoom = chatService.findRoomByRoomId(roomId);
+        dto.setTimestamp(LocalDateTime.now());
         if (chatRoom.getType() == ChatRoomType.ONE_TO_ONE) {
             Participant partner = chatService.findParticipantByRoomIdAndUserIdNot(roomId, userId);
             if (!partner.isActive()) {
                 partner.setActive(true);
-                partner.setJoinedAt(LocalDateTime.now());
+                partner.setJoinedAt(dto.getTimestamp());
                 partner.setDeactivatedAt(null);
                 chatService.saveParticipant(partner);
             }
@@ -68,6 +69,7 @@ public class ChatBusiness {
                 .timestamp(savedMessage.getTimestamp())
                 .senderId(userId)
                 .type(MessageType.TALK)
+                .roomId(roomId)
                 .build();
         rabbitTemplate.convertAndSend(CHAT_EXCHANGE, "chat.room."+roomId, Api.OK(chatMessageResponse));
         sseService.sendMessage(roomId, chatMessageResponse);
@@ -197,7 +199,8 @@ public class ChatBusiness {
                             latestMessage.getSenderId(),
                             latestMessage.getContent(),
                             latestMessage.getType(),
-                            latestMessage.getTimestamp())
+                            latestMessage.getTimestamp(),
+                            latestMessage.getRoomId())
                             : null;
                     return new ChatRoomsResponse(roomId, name, messageResponse);
                 })

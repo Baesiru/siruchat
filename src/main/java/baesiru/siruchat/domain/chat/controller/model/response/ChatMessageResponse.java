@@ -15,4 +15,5 @@ public class ChatMessageResponse {
     private String content;
     private MessageType type;
     private LocalDateTime timestamp;
+    private Long roomId;
 }

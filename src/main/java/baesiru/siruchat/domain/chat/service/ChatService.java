@@ -29,7 +29,7 @@ public class ChatService {
         msg.setSenderId(userId);
         msg.setContent(dto.getContent());
         msg.setType(dto.getType());
-        msg.setTimestamp(LocalDateTime.now());
+        msg.setTimestamp(dto.getTimestamp());
 
         return chatMessageRepository.save(msg);
     }
