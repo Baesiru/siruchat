@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: siruchat
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST}:3306/${MYSQL_DATABASE}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+  session:
+    redis:
+      namespace: siruchat:session
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    chat:
+      exchange: chat.topic.exchange
+      queue: chat.queue
+      room:
+        routing-key: chat.room.*
+
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      password: ${REDIS_PASSWORD}
+      port: 6379
+      repositories:
+        enabled: true
+    mongodb:
+      uri: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_HOST}:27017
+      database: ${MONGO_DB}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
+
+jwt:
+  secret:
+    key: ${JWT_SECRET}
+  access-token:
+    plus-hour: 1
+  refresh-token:
+    plus-hour: 12

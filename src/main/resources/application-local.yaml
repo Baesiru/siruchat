@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: siruchat
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/siruchat
+    username: siru
+    password: secret
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+  session:
+    redis:
+      namespace: siruchat:session
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: rabbitpassword
+    chat:
+      exchange: chat.topic.exchange
+      queue: chat.queue
+      room:
+        routing-key: chat.room.*
+
+
+  data:
+    redis:
+      host: localhost
+      password: siruchat
+      port: 6379
+      repositories:
+        enabled: true
+    mongodb:
+      uri: mongodb://admin:admin@$localhost:27017
+      database: db
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
+
+jwt:
+  secret:
+    key: "siruchat-local-environment-secret-key"
+  access-token:
+    plus-hour: 1
+  refresh-token:
+    plus-hour: 12
