@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Document
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessage {

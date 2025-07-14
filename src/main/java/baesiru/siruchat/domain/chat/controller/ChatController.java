@@ -31,6 +31,11 @@ public class ChatController {
         chatBusiness.sendMessage(authUser, roomId, dto);
     }
 
+    @MessageMapping("chat.messagetest.{roomId}")
+    public void sendMessageAndSaveWithRbmq(@AuthenticatedUser AuthUser authUser, @DestinationVariable Long roomId, ChatMessageDto dto) {
+        chatBusiness.sendMessageAndSaveWithRbmq(authUser, roomId, dto);
+    }
+
     @PostMapping("/api/chat/room")
     public Api<ChatRoomResponse> createRoom(@AuthenticatedUser AuthUser authUser, @RequestBody ChatRoomCreateRequest request) {
         return Api.OK(chatBusiness.createRoom(authUser, request));

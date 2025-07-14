@@ -1,9 +1,6 @@
 package baesiru.siruchat.common.config;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -28,6 +25,10 @@ public class RabbitMqConfig {
     private String roomQueue;
     @Value("${spring.rabbitmq.chat.room.routing-key}")
     private String roomRoutingKey;
+    @Value("${spring.rabbitmq.chat.save.queue}")
+    private String saveQueue;
+    @Value("${spring.rabbitmq.chat.save.routing-key}")
+    private String saveRoutingKey;
 
 
     @Bean
@@ -62,4 +63,31 @@ public class RabbitMqConfig {
                 .with(roomRoutingKey);
     }
 
+    @Bean
+    public Queue saveQueue() {
+        return QueueBuilder.durable(saveQueue)
+                .withArgument("x-dead-letter-exchange", exchange)
+                .withArgument("x-dead-letter-routing-key", saveRoutingKey + ".dlq")
+                .build();
+    }
+
+    @Bean
+    public Binding saveBinding() {
+        return BindingBuilder.bind(saveQueue())
+                .to(roomExchange())
+                .with(saveRoutingKey);
+    }
+
+
+    @Bean
+    public Queue saveDlqQueue() {
+        return QueueBuilder.durable(saveQueue + ".dlq").build();
+    }
+
+    @Bean
+    public Binding saveDlqBinding() {
+        return BindingBuilder.bind(saveDlqQueue())
+                .to(roomExchange())
+                .with(saveRoutingKey + ".dlq");
+    }
 }

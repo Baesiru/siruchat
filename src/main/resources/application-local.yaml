@@ -29,6 +29,10 @@ spring:
       room:
         routing-key: chat.room.*
 
+      save:
+        queue: chat.save.queue
+        routing-key: chat.save.message
+
 
   data:
     redis:

@@ -16,6 +16,7 @@ import baesiru.siruchat.domain.chat.service.ChatService;
 import baesiru.siruchat.domain.sse.service.SseService;
 import baesiru.siruchat.domain.user.repository.User;
 import baesiru.siruchat.domain.user.service.UserService;
+import io.micrometer.core.annotation.Timed;
 import jakarta.transaction.Transactional;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +47,6 @@ public class ChatBusiness {
     private static final String REDIS_ROOM_ID_KEY = "chat:roomId";
 
 
-
-
     @Transactional
     public void sendMessage(AuthUser authUser, Long roomId, ChatMessageDto dto) {
         Long userId = Long.parseLong(authUser.getUserId());
@@ -62,16 +61,59 @@ public class ChatBusiness {
                 chatService.saveParticipant(partner);
             }
         }
+        ChatMessage chatMessage = ChatMessage.builder()
+                .senderId(userId)
+                .roomId(roomId)
+                .content(dto.getContent())
+                .type(MessageType.TALK)
+                .timestamp(dto.getTimestamp())
+                .build();
 
-        ChatMessage savedMessage = chatService.saveMessage(userId, dto, roomId);
         ChatMessageResponse chatMessageResponse = ChatMessageResponse.builder()
-                .content(savedMessage.getContent())
-                .timestamp(savedMessage.getTimestamp())
+                .content(dto.getContent())
+                .timestamp(dto.getTimestamp())
                 .senderId(userId)
                 .type(MessageType.TALK)
                 .roomId(roomId)
                 .build();
+
+        chatService.saveMessage(chatMessage);
         rabbitTemplate.convertAndSend(CHAT_EXCHANGE, "chat.room."+roomId, Api.OK(chatMessageResponse));
+        sseService.sendMessage(roomId, chatMessageResponse);
+    }
+
+    @Transactional
+    public void sendMessageAndSaveWithRbmq(AuthUser authUser, Long roomId, ChatMessageDto dto) {
+        Long userId = Long.parseLong(authUser.getUserId());
+        ChatRoom chatRoom = chatService.findRoomByRoomId(roomId);
+        dto.setTimestamp(LocalDateTime.now());
+        if (chatRoom.getType() == ChatRoomType.ONE_TO_ONE) {
+            Participant partner = chatService.findParticipantByRoomIdAndUserIdNot(roomId, userId);
+            if (!partner.isActive()) {
+                partner.setActive(true);
+                partner.setJoinedAt(dto.getTimestamp());
+                partner.setDeactivatedAt(null);
+                chatService.saveParticipant(partner);
+            }
+        }
+        ChatMessage chatMessage = ChatMessage.builder()
+                .senderId(userId)
+                .roomId(roomId)
+                .content(dto.getContent())
+                .type(MessageType.TALK)
+                .timestamp(dto.getTimestamp())
+                .build();
+
+        ChatMessageResponse chatMessageResponse = ChatMessageResponse.builder()
+                .content(dto.getContent())
+                .timestamp(dto.getTimestamp())
+                .senderId(userId)
+                .type(MessageType.TALK)
+                .roomId(roomId)
+                .build();
+
+        rabbitTemplate.convertAndSend(CHAT_EXCHANGE, "chat.room."+roomId, Api.OK(chatMessageResponse));
+        rabbitTemplate.convertAndSend(CHAT_EXCHANGE, "chat.save.message", chatMessage);
         sseService.sendMessage(roomId, chatMessageResponse);
     }
 

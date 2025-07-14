@@ -5,13 +5,18 @@ import baesiru.siruchat.domain.chat.controller.model.request.ChatRoomCreateReque
 import baesiru.siruchat.domain.chat.repository.*;
 import baesiru.siruchat.domain.chat.repository.enums.ChatRoomType;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class ChatService {
     @Autowired
@@ -22,17 +27,25 @@ public class ChatService {
     private ChatMessageRepository chatMessageRepository;
 
 
-    @Transactional
-    public ChatMessage saveMessage(Long userId, ChatMessageDto dto, Long roomId) {
-        ChatMessage msg = new ChatMessage();
-        msg.setRoomId(roomId);
-        msg.setSenderId(userId);
-        msg.setContent(dto.getContent());
-        msg.setType(dto.getType());
-        msg.setTimestamp(dto.getTimestamp());
-
-        return chatMessageRepository.save(msg);
+    public ChatMessage saveMessage(ChatMessage chatMessage) {
+        return chatMessageRepository.save(chatMessage);
     }
+
+    @Transactional
+    @RabbitListener(queues = "chat.save.queue")
+    @Retryable(
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public void saveChatMessage(ChatMessage chatMessage){
+        saveMessage(chatMessage);
+    }
+
+    @RabbitListener(queues = "chat.save.queue.dlq")
+    public void handleDlq(ChatMessage chatMessage){
+        log.error("DLQ로 이동된 메시지 : ", chatMessage.toString());
+    }
+
 
     public Long findTopByOrderByRoomIdDesc() {
         Optional<ChatRoom> chatRoom = chatRoomRepository.findTopByOrderByRoomIdDesc();
@@ -130,5 +143,6 @@ public class ChatService {
         }
         return participant.get();
     }
+
 
 }
