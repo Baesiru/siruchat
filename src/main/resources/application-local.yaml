@@ -25,10 +25,6 @@ spring:
     password: rabbitpassword
     chat:
       exchange: chat.topic.exchange
-      queue: chat.queue
-      room:
-        routing-key: chat.room.*
-
       save:
         queue: chat.save.queue
         routing-key: chat.save.message

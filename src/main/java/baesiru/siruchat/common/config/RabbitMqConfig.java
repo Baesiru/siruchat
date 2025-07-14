@@ -21,10 +21,6 @@ public class RabbitMqConfig {
     private int port;
     @Value("${spring.rabbitmq.chat.exchange}")
     private String exchange;
-    @Value("${spring.rabbitmq.chat.queue}")
-    private String roomQueue;
-    @Value("${spring.rabbitmq.chat.room.routing-key}")
-    private String roomRoutingKey;
     @Value("${spring.rabbitmq.chat.save.queue}")
     private String saveQueue;
     @Value("${spring.rabbitmq.chat.save.routing-key}")
@@ -51,17 +47,6 @@ public class RabbitMqConfig {
         return new TopicExchange(exchange);
     }
 
-    @Bean
-    public Queue roomQueue() {
-        return new Queue(roomQueue);
-    }
-
-    @Bean
-    public Binding roomBinding() {
-        return BindingBuilder.bind(roomQueue())
-                .to(roomExchange())
-                .with(roomRoutingKey);
-    }
 
     @Bean
     public Queue saveQueue() {
