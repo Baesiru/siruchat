@@ -17,7 +17,8 @@ public class WebConfig implements WebMvcConfigurer {
     private AuthMvcInterceptor authMvcInterceptor;
 
     private final List<String> WHITE_LIST = List.of(
-            "/open-api/**"
+            "/open-api/**",
+            "/actuator/**"
     );
 
     @Override

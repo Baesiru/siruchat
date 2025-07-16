@@ -1,6 +1,7 @@
 package baesiru.siruchat.common.config;
 
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -35,6 +36,17 @@ public class RabbitMqConfig {
         connectionFactory.setUsername(username);
         connectionFactory.setPassword(password);
         return connectionFactory;
+    }
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setConcurrentConsumers(4);
+        factory.setMaxConcurrentConsumers(8);
+        factory.setPrefetchCount(150);
+        factory.setMessageConverter(messageConverter());
+        return factory;
     }
 
     @Bean
